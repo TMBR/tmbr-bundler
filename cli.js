@@ -1,16 +1,25 @@
 #!/usr/bin/env node
-
-const [,, ...args] = process.argv;
-console.log(`Hello World ${args}`);
-process.exit(0)
-
-const package = require('./package.json');
 const webpack = require('webpack');
 const path = require('path');
 const SourceMapDevToolPlugin = require('webpack').SourceMapDevToolPlugin;
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const BrowserSyncPlugin = require('browser-sync-webpack-plugin');
 
+const cwd = process.cwd();
+const command = process.argv[2] || 'build';
+const package = require(`${cwd}/package.json`);
+
+// const paths ={
+//   cwd: process.cwd(),
+//   input: path.resolve(cwd, 'src'),
+//   build: path.resolve(cwd, 'build'),
+// };
+
+// https://github.com/swashata/wp-webpack-script/tree/master/packages/scripts
+// https://github.com/chalk/chalk
+// https://www.npmjs.com/package/colors
+// https://www.npmjs.com/package/meow
+// https://www.npmjs.com/package/commander
 // https://webpack.js.org/api/node/#watching
 // https://nodejs.org/en/knowledge/command-line/how-to-parse-command-line-arguments/
 // https://docs.npmjs.com/cli/v7/configuring-npm/package-json#bin
@@ -21,14 +30,14 @@ const BrowserSyncPlugin = require('browser-sync-webpack-plugin');
 const config = {
   entry: {
     // admin: path.resolve(__dirname, 'src/admin'),
-    main: path.resolve(__dirname, 'src'),
+    main: path.resolve(cwd, 'src'),
   },
   output: {
-    path: path.resolve(__dirname, 'build'),
+    path: path.resolve(cwd, 'build'),
     filename: '[name].dev.js',
   },
   resolve: {
-    alias: {'@': path.resolve(__dirname, 'src')}
+    alias: {'@': path.resolve(cwd, 'src')}
   },
   devtool: false,
   module: {
@@ -55,6 +64,7 @@ const config = {
 };
 
 const watchConfig = Object.assign({}, config, {
+  name: 'watch',
   mode: 'development',
   stats: {
     all: false,
@@ -81,9 +91,10 @@ const watchConfig = Object.assign({}, config, {
 });
 
 const buildConfig = Object.assign({}, config, {
+  name: 'build',
   mode: 'production',
   output: {
-    path: path.resolve(__dirname, 'build'),
+    path: path.resolve(cwd, 'build'),
     filename: '[name].min.js',
   },
   stats: 'none',
@@ -117,13 +128,26 @@ const compiler = webpack([
   buildConfig
 ]);
 
-// compiler.run((err, stats) => {
-//   // https://webpack.js.org/api/node/#stats-object
-//   compiler.close();
-// });
+switch (command) {
 
-compiler.watch({
-  // https://webpack.js.org/configuration/watch/#watchoptions
-  aggregateTimeout: 300,
-  poll: undefined
-}, callback);
+  case 'watch':
+    compiler.watch({
+      // https://webpack.js.org/configuration/watch/#watchoptions
+      aggregateTimeout: 300,
+      poll: undefined
+    }, callback);
+    break;
+
+  case 'build':
+    compiler.run((err, stats) => {
+      // https://webpack.js.org/api/node/#stats-object
+      // https://webpack.js.org/configuration/stats/
+      console.log(stats.toJson());
+      // callback(err, stats);
+      compiler.close();
+    });
+    break;
+
+  default:
+    console.log(`Command "${command}" not found`);
+}
