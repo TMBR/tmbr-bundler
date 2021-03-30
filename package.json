@@ -3,13 +3,10 @@
   "author": "TMBR (https://wearetmbr.com/)",
   "version": "0.1.0",
   "repository": "https://github.com/TMBR/tmbr-bundler",
-  "description": "WordPress development toolkit powered by webpack",
+  "description": "WordPress development toolkit built on webpack and browser-sync",
   "bin": {
-    "bundler": "./bin"
+    "tmbr-bundler": "./cli.js"
   },
-  "files": [
-    "bin"
-  ],
   "dependencies": {
     "@babel/core": "^7.12.17",
     "@babel/preset-env": "^7.12.17",

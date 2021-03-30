@@ -1,5 +1,9 @@
 #!/usr/bin/env node
 
+const [,, ...args] = process.argv;
+console.log(`Hello World ${args}`);
+process.exit(0)
+
 const package = require('./package.json');
 const webpack = require('webpack');
 const path = require('path');
