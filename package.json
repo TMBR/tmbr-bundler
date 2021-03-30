@@ -2,7 +2,7 @@
   "name": "@tmbr/bundler",
   "author": "TMBR (https://wearetmbr.com/)",
   "version": "0.1.0",
-  "repository": "https://github.com/TMBR/@tmbr-bundler",
+  "repository": "https://github.com/TMBR/tmbr-bundler",
   "description": "WordPress development toolkit powered by webpack",
   "bin": {
     "bundler": "./bin"
