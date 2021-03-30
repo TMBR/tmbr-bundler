@@ -1,11 +1,11 @@
 {
   "name": "@tmbr/bundler",
   "author": "TMBR (https://wearetmbr.com/)",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "repository": "https://github.com/TMBR/tmbr-bundler",
   "description": "WordPress development toolkit built on webpack and browser-sync",
   "bin": {
-    "tmbr-bundler": "./cli.js"
+    "tmbr-bundler": "cli.js"
   },
   "dependencies": {
     "@babel/core": "^7.12.17",
