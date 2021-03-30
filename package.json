@@ -1,0 +1,24 @@
+{
+  "name": "@tmbr/bundler",
+  "author": "TMBR (https://wearetmbr.com/)",
+  "version": "0.1.0",
+  "repository": "https://github.com/TMBR/@tmbr-bundler",
+  "description": "WordPress development toolkit powered by webpack",
+  "bin": {
+    "bundler": "./bin"
+  },
+  "files": [
+    "bin"
+  ],
+  "dependencies": {
+    "@babel/core": "^7.12.17",
+    "@babel/preset-env": "^7.12.17",
+    "babel-loader": "^8.2.2",
+    "browser-sync-webpack-plugin": "^2.3.0",
+    "css-loader": "^5.0.2",
+    "mini-css-extract-plugin": "^1.3.8",
+    "sass": "^1.32.8",
+    "sass-loader": "^11.0.1",
+    "webpack": "^5.23.0"
+  }
+}
