@@ -9,27 +9,9 @@ const cwd = process.cwd();
 const command = process.argv[2] || 'build';
 const package = require(`${cwd}/package.json`);
 
-// const paths ={
-//   cwd: process.cwd(),
-//   input: path.resolve(cwd, 'src'),
-//   build: path.resolve(cwd, 'build'),
-// };
-
-// https://github.com/swashata/wp-webpack-script/tree/master/packages/scripts
-// https://github.com/chalk/chalk
-// https://www.npmjs.com/package/colors
-// https://www.npmjs.com/package/meow
-// https://www.npmjs.com/package/commander
-// https://webpack.js.org/api/node/#watching
-// https://nodejs.org/en/knowledge/command-line/how-to-parse-command-line-arguments/
-// https://docs.npmjs.com/cli/v7/configuring-npm/package-json#bin
-
-// console.log(process.argv);
-// build.config.js
-
 const config = {
   entry: {
-    // admin: path.resolve(__dirname, 'src/admin'),
+    admin: path.resolve(cwd, 'src/admin'),
     main: path.resolve(cwd, 'src'),
   },
   output: {

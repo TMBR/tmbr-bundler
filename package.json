@@ -2,6 +2,7 @@
   "name": "@tmbr/bundler",
   "author": "TMBR (https://wearetmbr.com/)",
   "version": "0.1.2",
+  "license": "MIT",
   "repository": "https://github.com/TMBR/tmbr-bundler",
   "description": "WordPress development toolkit built on webpack and browser-sync",
   "bin": {
@@ -12,6 +13,7 @@
     "@babel/preset-env": "^7.12.17",
     "babel-loader": "^8.2.2",
     "browser-sync-webpack-plugin": "^2.3.0",
+    "commander": "^2.20.3",
     "css-loader": "^5.0.2",
     "mini-css-extract-plugin": "^1.3.8",
     "sass": "^1.32.8",
