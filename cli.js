@@ -16,7 +16,7 @@ const config = {
   },
   output: {
     path: path.resolve(cwd, 'build'),
-    filename: '[name].dev.js',
+    filename: '[name].js',
   },
   resolve: {
     alias: {'@': path.resolve(cwd, 'src')}
@@ -59,7 +59,7 @@ const watchConfig = Object.assign({}, config, {
   plugins: [
     new SourceMapDevToolPlugin(),
     new MiniCssExtractPlugin({
-      filename: '[name].dev.css'
+      filename: '[name].css'
     }),
     new BrowserSyncPlugin({
       proxy: `${package.name}.test`,
