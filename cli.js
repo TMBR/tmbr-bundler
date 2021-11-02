@@ -64,9 +64,10 @@ const defaults = {
   sourcemap: false,
   logLevel: 'warning',
   legalComments: 'none',
+  treeShaking: true,
   target: 'es2019',
   plugins: [
-    styles({cache: true}),
+    styles({sourceMap: true}),
     assets(),
   ],
 };
