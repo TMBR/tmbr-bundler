@@ -6,10 +6,12 @@ const styles = require('esbuild-sass-plugin').sassPlugin;
 const qrcode = require('qrcode-terminal');
 const chalk = require('chalk');
 const bs = require('browser-sync').create();
+const renderError = require('./error');
 
 const cwd = process.cwd();
 const package = require(`${cwd}/package.json`);
 const command = process.argv[2];
+let error;
 
 if (!['build', 'watch'].includes(command)) {
   console.log(`Invalid command: ${chalk.red(command)}\n`);
@@ -32,9 +34,8 @@ const errors = (options = {}) => ({
   name: 'errors',
   setup(build) {
     build.onEnd(result => {
-      if (result.errors.length) {
-        console.log(result.errors)
-      }
+      error = result.errors[0];
+      error && bs.reload();
     });
   },
 });
@@ -102,8 +103,15 @@ if (command === 'watch') {
     '**/*.php'
   ];
 
+  const middleware = (proxyRes, req, res) => {
+    error && res.end(renderError(error));
+  };
+
   const options = {
-    proxy: `${package.name}.test`,
+    proxy: {
+      target: `${package.name}.test`,
+      proxyRes: [middleware]
+    },
     host: 'localhost',
     open: false,
     notify: false,
