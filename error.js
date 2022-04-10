@@ -7,18 +7,21 @@ module.exports = error => {
 
     const lines = fs.readFileSync(file, 'UTF-8').split(/\r?\n/);
     const index = line - 1;
-    const space = ' ';
-
     const inset = String((lines[index + 2] && line + 2) || (lines[index + 1] && line + 1) || line).split('').length;
+
     const print = offset => (
         `<span class="c-gray">${String(line + offset).padStart(2 + inset, ' ')} | </span>` + encode(lines[index + offset])
     );
+
+    const space = length => {
+        return ' '.repeat(length);
+    };
 
     const output = [
         (index - 2) >= 0 && print(-2),
         (index - 1) >= 0 && print(-1),
         `<span class="c-red fw-700">&gt;</span><span class="c-gray"> ${line} | </span>${encode(lines[index])}`,
-        ` <span class="c-gray">${space.repeat(2 + inset)}| </span>${space.repeat(column ? column - 1 : 0)}<span class="c-red fw-700">^</span>`,
+        ` <span class="c-gray">${space(2 + inset)}| </span>${space(column ? column - 1 : 0)}<span class="c-red fw-700">^</span>`,
         (index + 1) <= lines.length - 1 && print(1),
         (index + 2) <= lines.length - 1 && print(2),
     ].filter(Boolean).join('\n');
