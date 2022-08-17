@@ -1,7 +1,7 @@
 {
   "name": "@tmbr/bundler",
   "author": "TMBR (https://wearetmbr.com/)",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "license": "MIT",
   "repository": "https://github.com/TMBR/tmbr-bundler",
   "description": "WordPress development toolkit built on esbuild and browser-sync",
@@ -14,6 +14,7 @@
     "esbuild": "^0.14.47",
     "esbuild-sass-plugin": "^2.2.6",
     "html-entities": "^2.3.2",
-    "qrcode-terminal": "^0.12.0"
+    "qrcode-terminal": "^0.12.0",
+    "webfonts-generator": "^0.4.0"
   }
 }
