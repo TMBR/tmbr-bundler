@@ -63,16 +63,6 @@ const errors = (options = {}) => ({
   },
 });
 
-const errors = (options = {}) => ({
-  name: 'errors',
-  setup(build) {
-    build.onEnd(result => {
-      error = result.errors[0];
-      error && bs.reload();
-    });
-  },
-});
-
 function entryPoints(suffix = '') {
 
   if (!suffix.startsWith('.')) {
