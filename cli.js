@@ -7,7 +7,6 @@ const qrcode = require('qrcode-terminal');
 const chalk = require('chalk');
 const bs = require('browser-sync').create();
 const renderError = require('./error');
-// const webfontsGenerator = require('webfonts-generator'); // OPTIONAL ICON FONT BUILDER UNCOMMENT TO USE
 
 const cwd = process.cwd();
 const package = require(`${cwd}/package.json`);
@@ -30,28 +29,6 @@ const assets = (options = {}) => ({
     }))
   },
 });
-
-// OPTIONAL ICON FONT BUILDER. CREATE /ICONS FOLDER AND UNCOMMENT TO USE
-// ADD SVG FILES INTO FOLDER AND ADD TO FILES LIST BELOW
-// ADD TO INDEX.SCSS: @import "../fonts/tmbr-icons.css";
-// webfontsGenerator({
-//   files: [
-//     './icons/angle-left.svg',
-//   ],
-//   dest: './fonts/',
-//   fontName: 'tmbr-icons',
-//   templateOptions: {
-//     baseClass: 'icon',
-//     classPrefix: 'icon-'
-//   }, 
-//   types: ['woff2', 'woff', 'svg']
-//   }, function(error) {
-//   if (error) {
-//     console.log('Fail!', error);
-//   } else {
-//     console.log('Icon Font Built');
-//   }
-// });
 
 const errors = (options = {}) => ({
   name: 'errors',
