@@ -6,12 +6,10 @@ const styles = require('esbuild-sass-plugin').sassPlugin;
 const qrcode = require('qrcode-terminal');
 const chalk = require('chalk');
 const bs = require('browser-sync').create();
-const renderError = require('./error');
 
 const cwd = process.cwd();
 const package = require(`${cwd}/package.json`);
 const command = process.argv[2];
-let error;
 
 if (!['build', 'watch'].includes(command)) {
   console.log(`Invalid command: ${chalk.red(command)}\n`);
@@ -20,25 +18,18 @@ if (!['build', 'watch'].includes(command)) {
 
 exec(`rm -rf ${cwd}/build/*`);
 
-const assets = (options = {}) => ({
-  name: 'assets',
-  setup(build) {
-    build.onResolve({filter: /..\/(fonts|images)\//}, args => ({
-      path: args.path,
-      external: true
-    }))
-  },
-});
+function ok() {
+  command === 'watch' && console.clear();
 
-const errors = (options = {}) => ({
-  name: 'errors',
-  setup(build) {
-    build.onEnd(result => {
-      error = result.errors[0];
-      error && bs.reload();
-    });
-  },
-});
+  const host = bs.getOption('proxy').get('target');
+  const port = bs.getOption('port');
+  const proxying = `${host}:${port}`;
+  const external = bs.getOption('urls').get('external');
+
+  external && qrcode.generate(external, {small: true}, console.log);
+  console.log(`Proxying: ${chalk.green(proxying)}`);
+  console.log(`External: ${chalk.cyan(external || 'offline')}\n`);
+}
 
 function entryPoints(suffix = '') {
 
@@ -56,6 +47,25 @@ function entryPoints(suffix = '') {
     return result;
   }, {});
 }
+
+const assets = (options = {}) => ({
+  name: 'assets',
+  setup(build) {
+    build.onResolve({filter: /..\/(fonts|images)\//}, args => ({
+      path: args.path,
+      external: true
+    }))
+  },
+});
+
+const errors = (options = {}) => ({
+  name: 'errors',
+  setup(build) {
+    build.onEnd(({warnings, errors}) => {
+      (warnings.length || errors.length) ? console.log('\007') : ok();
+    });
+  },
+});
 
 const defaults = {
   watch: command === 'watch',
@@ -88,8 +98,9 @@ const buildConfig = Object.assign({}, defaults, {
   entryPoints: entryPoints('min'),
 });
 
-esbuild.build(watchConfig);
-esbuild.build(buildConfig);
+const noop = fn => fn;
+esbuild.build(watchConfig).catch(noop);
+esbuild.build(buildConfig).catch(noop);
 
 if (command === 'watch') {
 
@@ -103,15 +114,8 @@ if (command === 'watch') {
     '**/*.php'
   ];
 
-  const middleware = (proxyRes, req, res) => {
-    error && res.end(renderError(error));
-  };
-
   const options = {
-    proxy: {
-      target: `${package.name}.test`,
-      proxyRes: [middleware]
-    },
+    proxy: `${package.name}.test`,
     host: 'localhost',
     open: false,
     notify: false,
@@ -120,15 +124,5 @@ if (command === 'watch') {
     files
   };
 
-  bs.init(options, () => {
-
-    const host = bs.getOption('proxy').get('target');
-    const port = bs.getOption('port');
-    const proxying = `${host}:${port}`;
-    const external = bs.getOption('urls').get('external');
-
-    external && qrcode.generate(external, {small: true}, console.log);
-    console.log(`Proxying: ${chalk.green(proxying)}`);
-    console.log(`External: ${chalk.cyan(external || 'offline')}`);
-  });
+  bs.init(options, ok);
 }
