@@ -1,7 +1,7 @@
 {
   "name": "@tmbr/bundler",
   "author": "TMBR (https://wearetmbr.com/)",
-  "version": "1.4.1",
+  "version": "1.5.0",
   "license": "MIT",
   "repository": "https://github.com/TMBR/tmbr-bundler",
   "description": "WordPress development toolkit built on esbuild and browser-sync",
