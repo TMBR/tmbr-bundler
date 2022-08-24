@@ -7,8 +7,8 @@ const qrcode = require('qrcode-terminal');
 const chalk = require('chalk');
 const bs = require('browser-sync').create();
 
-const cwd = process.cwd();
-const package = require(`${cwd}/package.json`);
+const dir = process.cwd();
+const package = require(`${dir}/package.json`);
 const command = process.argv[2];
 
 if (!['build', 'watch'].includes(command)) {
@@ -16,7 +16,7 @@ if (!['build', 'watch'].includes(command)) {
   process.exit();
 }
 
-exec(`rm -rf ${cwd}/build/*`);
+exec(`rm -rf ${dir}/build/*`);
 
 function ok() {
   command === 'watch' && console.clear();
@@ -38,8 +38,8 @@ function entryPoints(suffix = '') {
   }
 
   const entries = Object.entries({
-    admin: path.resolve(cwd, './src/admin'),
-    main: path.resolve(cwd, './src'),
+    admin: path.resolve(dir, './src/admin'),
+    main: path.resolve(dir, './src'),
   });
 
   return entries.reduce((result, [name, path]) => {
@@ -69,7 +69,7 @@ const errors = (options = {}) => ({
 
 const defaults = {
   watch: command === 'watch',
-  outdir: path.resolve(cwd, 'build'),
+  outdir: path.resolve(dir, 'build'),
   bundle: true,
   minify: true,
   sourcemap: false,
