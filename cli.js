@@ -114,24 +114,7 @@ if (command === 'watch') {
     '**/*.php'
   ];
 
-  const middleware = [
-    function (req, res, next) {
-        /** First middleware handler **/
-        console.log('first', req.baseUrl);
-        next();
-    },
-    {
-      route: '/',
-      handle: function (req, res, next) {
-        console.log('second');
-        next();
-          // handle any requests at /api
-      }
-  }
-  ]
-
   const options = {
-    middleware,
     proxy: `${package.name}.test`,
     host: 'localhost',
     open: false,
