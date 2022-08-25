@@ -2,10 +2,10 @@
 const esbuild = require('esbuild');
 const path = require('path');
 const exec = require('child_process').execSync;
+const chalk = require('chalk');
 const styles = require('esbuild-sass-plugin').sassPlugin;
 const qrcode = require('qrcode-terminal');
-const chalk = require('chalk');
-const bs = require('browser-sync').create();
+const server = require('browser-sync').create();
 
 const dir = process.cwd();
 const package = require(`${dir}/package.json`);
@@ -21,10 +21,10 @@ exec(`rm -rf ${dir}/build/*`);
 function ok() {
   command === 'watch' && console.clear();
 
-  const host = bs.getOption('proxy').get('target');
-  const port = bs.getOption('port');
+  const host = server.getOption('proxy').get('target');
+  const port = server.getOption('port');
   const proxying = `${host}:${port}`;
-  const external = bs.getOption('urls').get('external');
+  const external = server.getOption('urls').get('external');
 
   external && qrcode.generate(external, {small: true}, console.log);
   console.log(`Proxying: ${chalk.green(proxying)}`);
@@ -124,5 +124,5 @@ if (command === 'watch') {
     files
   };
 
-  bs.init(options, ok);
+  server.init(options, ok);
 }
