@@ -19,13 +19,12 @@ if (!['build', 'watch'].includes(command)) {
 exec(`rm -rf ${dir}/build/*`);
 
 function ok() {
-  command === 'watch' && console.clear();
-
   const host = server.getOption('proxy').get('target');
   const port = server.getOption('port');
   const proxying = `${host}:${port}`;
   const external = server.getOption('urls').get('external');
 
+  console.clear();
   external && qrcode.generate(external, {small: true}, console.log);
   console.log(`Proxying: ${chalk.green(proxying)}`);
   console.log(`External: ${chalk.cyan(external || 'offline')}\n`);
