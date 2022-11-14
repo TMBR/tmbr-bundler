@@ -50,7 +50,7 @@ function entryPoints(suffix = '') {
 const assets = (options = {}) => ({
   name: 'assets',
   setup(build) {
-    build.onResolve({filter: /..\/(fonts|images)\//}, args => ({
+    build.onResolve({filter: /..\/(assets|fonts|images)\//}, args => ({
       path: args.path,
       external: true
     }))
