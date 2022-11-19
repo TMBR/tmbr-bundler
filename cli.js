@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 const esbuild = require('esbuild');
+const fs = require('fs');
 const path = require('path');
 const exec = require('child_process').execSync;
 const chalk = require('chalk');
@@ -42,7 +43,7 @@ function entryPoints(suffix = '') {
   });
 
   return entries.reduce((result, [name, path]) => {
-    result[`${name}${suffix}`] = path;
+    if (fs.existsSync(path)) result[`${name}${suffix}`] = path;
     return result;
   }, {});
 }
