@@ -59,6 +59,7 @@ const errors = (options = {}) => ({
 
 const defaults = {
   watch: command === 'watch',
+  alias: {'~': path.resolve(dir, 'src')},
   outdir: path.resolve(dir, 'build'),
   bundle: true,
   minify: true,
