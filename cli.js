@@ -48,16 +48,6 @@ function entryPoints(suffix = '') {
   }, {});
 }
 
-const assets = (options = {}) => ({
-  name: 'assets',
-  setup(build) {
-    build.onResolve({filter: /..\/(assets|fonts|images)\//}, args => ({
-      path: args.path,
-      external: true
-    }))
-  },
-});
-
 const errors = (options = {}) => ({
   name: 'errors',
   setup(build) {
@@ -72,15 +62,13 @@ const defaults = {
   outdir: path.resolve(dir, 'build'),
   bundle: true,
   minify: true,
+  external: ['../assets/*', '../fonts/*', '../images/*'],
   sourcemap: false,
   logLevel: 'warning',
   legalComments: 'none',
   treeShaking: true,
   target: 'es2019',
-  plugins: [
-    styles({sourceMap: true}),
-    assets(),
-  ],
+  plugins: [styles({sourceMap: true})],
 };
 
 const watchConfig = Object.assign({}, defaults, {
@@ -88,10 +76,7 @@ const watchConfig = Object.assign({}, defaults, {
   minify: false,
   sourcemap: 'inline',
   logLevel: 'silent',
-  plugins: [
-    ...defaults.plugins,
-    errors()
-  ],
+  plugins: [...defaults.plugins, errors()],
 });
 
 const buildConfig = Object.assign({}, defaults, {
@@ -104,24 +89,14 @@ esbuild.build(buildConfig).catch(noop);
 
 if (command === 'watch') {
 
-  const watchedBuilds = Object.keys(watchConfig.entryPoints).map(name => (
-    `${watchConfig.outdir}/${name}.*`
-  ));
-
-  const files = [
-    ...watchedBuilds,
-    'images/*',
-    '**/*.php'
-  ];
-
   const options = {
     proxy: `${package.name}.test`,
+    files: ['build/*', '**/*.php'],
     host: 'localhost',
     open: false,
     notify: false,
     logLevel: 'silent',
     ui: false,
-    files
   };
 
   server.init(options, ok);
