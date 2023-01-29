@@ -63,12 +63,12 @@ const defaults = {
   outdir: path.resolve(dir, 'build'),
   bundle: true,
   minify: true,
-  external: ['../assets/*', '../fonts/*', '../images/*'],
-  sourcemap: false,
-  logLevel: 'warning',
-  legalComments: 'none',
-  treeShaking: true,
   target: 'es2019',
+  external: 'jpg,jpeg,webp,png,svg,woff,woff2'.split(',').map(ext => `*.${ext}`),
+  logLevel: 'warning',
+  sourcemap: false,
+  treeShaking: true,
+  legalComments: 'none',
   plugins: [styles({sourceMap: true})],
 };
 
