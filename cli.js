@@ -92,7 +92,8 @@ if (command === 'watch') {
 
   const options = {
     proxy: `${package.name}.test`,
-    files: ['build/*', '**/*.php'],
+    files: ['assets/**', 'build/*', '**/*.php'],
+    injectChanges: false,
     host: 'localhost',
     open: false,
     notify: false,
