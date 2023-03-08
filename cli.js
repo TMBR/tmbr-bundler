@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 const esbuild = require('esbuild');
-const fs = require('fs');
 const path = require('path');
 const exec = require('child_process').execSync;
 const chalk = require('chalk');
@@ -17,89 +16,83 @@ if (!['build', 'watch'].includes(command)) {
   process.exit();
 }
 
-exec(`rm -rf ${dir}/build/*`);
-
 function ok() {
+
+  console.clear();
   const host = server.getOption('proxy').get('target');
   const port = server.getOption('port');
   const proxying = `${host}:${port}`;
   const external = server.getOption('urls').get('external');
 
-  console.clear();
   external && qrcode.generate(external, {small: true}, console.log);
   console.log(`Proxying: ${chalk.green(proxying)}`);
   console.log(`External: ${chalk.cyan(external || 'offline')}\n`);
 }
 
-function entryPoints(suffix = '') {
-
-  if (!suffix.startsWith('.')) {
-    suffix = `.${suffix}`;
-  }
-
-  const entries = Object.entries({
-    admin: path.resolve(dir, './src/admin'),
-    main: path.resolve(dir, './src'),
-  });
-
-  return entries.reduce((result, [name, path]) => {
-    if (fs.existsSync(path)) result[`${name}${suffix}`] = path;
-    return result;
-  }, {});
-}
-
 const errors = (options = {}) => ({
   name: 'errors',
   setup(build) {
-    build.onEnd(({warnings, errors}) => {
-      (warnings.length || errors.length) ? console.log('\007') : ok();
-    });
+    // console.log(Object.keys(build));
+    // console.log(build)
+    // build.onEnd(({warnings, errors}) => (warnings.length || errors.length) ? console.log('\007') : ok());
   },
 });
 
-const defaults = {
-  watch: command === 'watch',
+const buildConfig = {
+  entryPoints: {'main.min': path.resolve(dir, './src')},
   alias: {'~': path.resolve(dir, 'src')},
   outdir: path.resolve(dir, 'build'),
   bundle: true,
   minify: true,
   target: 'es2019',
-  external: 'jpg,jpeg,webp,png,svg,woff,woff2'.split(',').map(ext => `*.${ext}`),
+  external: 'jpg,jpeg,webp,png,gif,svg,woff,woff2'.split(',').map(ext => `*.${ext}`),
   logLevel: 'warning',
   sourcemap: false,
   treeShaking: true,
   legalComments: 'none',
-  plugins: [styles({sourceMap: true})],
+  plugins: [styles({sourceMap: true})]
 };
 
-const watchConfig = Object.assign({}, defaults, {
-  entryPoints: entryPoints('dev'),
+const watchConfig = Object.assign({}, buildConfig, {
+  entryPoints: {'main.dev': path.resolve(dir, './src')},
   minify: false,
-  sourcemap: 'inline',
   logLevel: 'silent',
-  plugins: [...defaults.plugins, errors()],
+  sourcemap: 'inline',
+  plugins: [...buildConfig.plugins, errors()]
 });
 
-const buildConfig = Object.assign({}, defaults, {
-  entryPoints: entryPoints('min'),
-});
+async function main() {
 
-const noop = fn => fn;
-esbuild.build(watchConfig).catch(noop);
-esbuild.build(buildConfig).catch(noop);
+  const builder = await esbuild.context(buildConfig);
+  const watcher = await esbuild.context(watchConfig);
 
-if (command === 'watch') {
+  try {
+
+    await builder.rebuild();
+    await watcher.rebuild();
+
+    if (command === 'build') process.exit();
+
+    await builder.watch();
+    await watcher.watch();
+
+  } catch(e) {
+    console.log(e);
+    process.exit();
+  }
 
   const options = {
     proxy: `${package.name}.test`,
     files: ['assets/**', 'build/*', '**/*.php'],
-    injectChanges: false,
     host: 'localhost',
     open: false,
     notify: false,
     logLevel: 'silent',
+    injectChanges: false,
     ui: false,
   };
 
   server.init(options, ok);
 }
+
+main();
