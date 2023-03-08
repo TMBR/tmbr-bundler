@@ -3,6 +3,7 @@
   "version": "1.7.0",
   "repository": "github:TMBR/tmbr-bundler",
   "bin": {
+    "bundler": "cli.js",
     "tmbr-bundler": "cli.js"
   },
   "dependencies": {
