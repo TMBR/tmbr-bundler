@@ -8,6 +8,7 @@ const qrcode = require('qrcode-terminal');
 const server = require('browser-sync').create();
 
 const dir = process.cwd();
+const src = path.resolve(dir, 'src');
 const package = require(`${dir}/package.json`);
 const command = process.argv[2];
 
@@ -17,13 +18,11 @@ if (!['build', 'watch'].includes(command)) {
 }
 
 function ok() {
-
-  console.clear();
+  // console.clear();
   const host = server.getOption('proxy').get('target');
   const port = server.getOption('port');
   const proxying = `${host}:${port}`;
   const external = server.getOption('urls').get('external');
-
   external && qrcode.generate(external, {small: true}, console.log);
   console.log(`Proxying: ${chalk.green(proxying)}`);
   console.log(`External: ${chalk.cyan(external || 'offline')}\n`);
@@ -31,16 +30,23 @@ function ok() {
 
 const errors = (options = {}) => ({
   name: 'errors',
-  setup(build) {
-    // console.log(Object.keys(build));
-    // console.log(build)
-    // build.onEnd(({warnings, errors}) => (warnings.length || errors.length) ? console.log('\007') : ok());
+  setup(context) {
+    // console.log(context.initialOptions);
+    // context.onStart(() => {
+    //   console.log('build started');
+    // });
+    // context.onEnd(result => {
+    //   console.log(`build ended with ${result.errors.length} errors`);
+    // });
+    // context.onEnd(({warnings, errors}) => {
+    //   (warnings.length || errors.length) ? console.log('\007') : ok()
+    // });
   },
 });
 
-const buildConfig = {
-  entryPoints: {'main.min': path.resolve(dir, './src')},
-  alias: {'~': path.resolve(dir, 'src')},
+const buildOptions = {
+  entryPoints: {'main.min': src},
+  alias: {'~': src},
   outdir: path.resolve(dir, 'build'),
   bundle: true,
   minify: true,
@@ -53,31 +59,32 @@ const buildConfig = {
   plugins: [styles({sourceMap: true})]
 };
 
-const watchConfig = Object.assign({}, buildConfig, {
-  entryPoints: {'main.dev': path.resolve(dir, './src')},
+const watchOptions = Object.assign({}, buildOptions, {
+  entryPoints: {'main.dev': src},
   minify: false,
   logLevel: 'silent',
   sourcemap: 'inline',
-  plugins: [...buildConfig.plugins, errors()]
+  plugins: [...buildOptions.plugins, errors()]
 });
 
 async function main() {
 
-  const builder = await esbuild.context(buildConfig);
-  const watcher = await esbuild.context(watchConfig);
+  const builder = await esbuild.context(buildOptions);
+  const watcher = await esbuild.context(watchOptions);
 
   try {
 
-    await builder.rebuild();
-    await watcher.rebuild();
+    await Promise.all([
+      builder.rebuild(),
+      watcher.rebuild(),
+    ]);
 
     if (command === 'build') process.exit();
 
-    await builder.watch();
-    await watcher.watch();
+    builder.watch();
+    watcher.watch();
 
   } catch(e) {
-    console.log(e);
     process.exit();
   }
 
