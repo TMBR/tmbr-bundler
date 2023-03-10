@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 const esbuild = require('esbuild');
+const fs = require('fs');
 const path = require('path');
 const exec = require('child_process').execSync;
 const chalk = require('chalk');
-const styles = require('esbuild-sass-plugin').sassPlugin;
-const qrcode = require('qrcode-terminal');
 const server = require('browser-sync').create();
+const styles = require('esbuild-sass-plugin').sassPlugin;
+const silent = require('sass').Logger.silent;
 
 const dir = process.cwd();
 const src = path.resolve(dir, 'src');
@@ -17,37 +18,36 @@ if (!['build', 'watch'].includes(command)) {
   process.exit();
 }
 
-function ok() {
-  // console.clear();
-  const host = server.getOption('proxy').get('target');
-  const port = server.getOption('port');
-  const proxying = `${host}:${port}`;
-  const external = server.getOption('urls').get('external');
-  external && qrcode.generate(external, {small: true}, console.log);
-  console.log(`Proxying: ${chalk.green(proxying)}`);
-  console.log(`External: ${chalk.cyan(external || 'offline')}\n`);
-}
-
-const errors = (options = {}) => ({
-  name: 'errors',
+const logger = (options = {}) => ({
+  name: 'logger',
   setup(context) {
-    // console.log(context.initialOptions);
-    // context.onStart(() => {
-    //   console.log('build started');
-    // });
-    // context.onEnd(result => {
-    //   console.log(`build ended with ${result.errors.length} errors`);
-    // });
-    // context.onEnd(({warnings, errors}) => {
-    //   (warnings.length || errors.length) ? console.log('\007') : ok()
-    // });
-  },
+
+    // let reset = true;
+    // const path = `${context.initialOptions.outdir}/${Object.keys(context.initialOptions.entryPoints)[0]}`;
+
+    context.onStart(() => {
+      server.instance.active && server.info();
+    });
+
+    context.onEnd(result => {
+      if (result.warnings.length || result.errors.length) return console.log('\007');
+      // console.log(`${path}.css`);
+      // console.log(`${path}.js`);
+      // const stats = fs.statSync('main.min.js');
+      // const bytes = stats.size;
+      // console.log(`build/main.min.js ${bytes / 1000}`);
+      // console.log(`build/main.min.css ${Math.round(fs.statSync('build/main.min.css').size / 1000)} KB`);
+      // console.log(`build ended with ${result.errors.length} errors`);
+      // build/main.min.css 47KB
+      // build/main.min.js  170KB
+    });
+  }
 });
 
 const buildOptions = {
   entryPoints: {'main.min': src},
   alias: {'~': src},
-  outdir: path.resolve(dir, 'build'),
+  outdir: 'build',
   bundle: true,
   minify: true,
   target: 'es2019',
@@ -56,7 +56,10 @@ const buildOptions = {
   sourcemap: false,
   treeShaking: true,
   legalComments: 'none',
-  plugins: [styles({sourceMap: true})]
+  plugins: [
+    styles({sourceMap: false, logger: silent}),
+    logger()
+  ]
 };
 
 const watchOptions = Object.assign({}, buildOptions, {
@@ -64,42 +67,49 @@ const watchOptions = Object.assign({}, buildOptions, {
   minify: false,
   logLevel: 'silent',
   sourcemap: 'inline',
-  plugins: [...buildOptions.plugins, errors()]
+  plugins: [
+    styles({sourceMap: true})
+  ]
 });
+
+const serveOptions = {
+  proxy: `${package.name}.test`,
+  files: ['assets/**', 'build/*', '**/*.php'],
+  host: 'localhost',
+  open: false,
+  notify: false,
+  logLevel: 'silent',
+  injectChanges: false,
+  ui: false,
+};
+
+server.info = function() {
+  const host = server.getOption('proxy').get('target');
+  const port = server.getOption('port');
+  const proxying = `${host}:${port}`;
+  const external = server.getOption('urls').get('external');
+
+  console.clear();
+  console.log();
+  console.log(`Proxying: ${chalk.green(proxying)}`);
+  console.log(`External: ${chalk.cyan(external || 'offline')}\n`);
+};
 
 async function main() {
 
-  const builder = await esbuild.context(buildOptions);
   const watcher = await esbuild.context(watchOptions);
+  const builder = await esbuild.context(buildOptions);
 
-  try {
-
-    await Promise.all([
-      builder.rebuild(),
-      watcher.rebuild(),
-    ]);
-
-    if (command === 'build') process.exit();
-
-    builder.watch();
-    watcher.watch();
-
-  } catch(e) {
+  if (command === 'build') {
+    await watcher.rebuild();
+    await builder.rebuild();
     process.exit();
   }
 
-  const options = {
-    proxy: `${package.name}.test`,
-    files: ['assets/**', 'build/*', '**/*.php'],
-    host: 'localhost',
-    open: false,
-    notify: false,
-    logLevel: 'silent',
-    injectChanges: false,
-    ui: false,
-  };
-
-  server.init(options, ok);
+  server.init(serveOptions, () => {
+    builder.watch();
+    watcher.watch();
+  });
 }
 
 main();
