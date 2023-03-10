@@ -2,7 +2,6 @@
 const esbuild = require('esbuild');
 const fs = require('fs');
 const path = require('path');
-const exec = require('child_process').execSync;
 const chalk = require('chalk');
 const server = require('browser-sync').create();
 const styles = require('esbuild-sass-plugin').sassPlugin;
@@ -22,8 +21,8 @@ const logger = (options = {}) => ({
   name: 'logger',
   setup(context) {
 
-    // let reset = true;
-    // const path = `${context.initialOptions.outdir}/${Object.keys(context.initialOptions.entryPoints)[0]}`;
+    const path = context.initialOptions.outdir;
+    const slug = Object.keys(context.initialOptions.entryPoints)[0];
 
     context.onStart(() => {
       server.instance.active && server.info();
@@ -31,15 +30,12 @@ const logger = (options = {}) => ({
 
     context.onEnd(result => {
       if (result.warnings.length || result.errors.length) return console.log('\007');
-      // console.log(`${path}.css`);
-      // console.log(`${path}.js`);
-      // const stats = fs.statSync('main.min.js');
-      // const bytes = stats.size;
-      // console.log(`build/main.min.js ${bytes / 1000}`);
-      // console.log(`build/main.min.css ${Math.round(fs.statSync('build/main.min.css').size / 1000)} KB`);
-      // console.log(`build ended with ${result.errors.length} errors`);
-      // build/main.min.css 47KB
-      // build/main.min.js  170KB
+
+      const css = `${path}/${slug}.css`;
+      console.log(`${css} ${Math.round(fs.statSync(css).size / 1000)} KB`);
+
+      const js = `${path}/${slug}.js`;
+      console.log(`${js} ${Math.round(fs.statSync(js).size / 1000)} KB`);
     });
   }
 });
