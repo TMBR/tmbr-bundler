@@ -7,9 +7,9 @@ const server = require('browser-sync').create();
 const styles = require('esbuild-sass-plugin').sassPlugin;
 const silent = require('sass').Logger.silent;
 
-const dir = process.cwd();
-const src = path.resolve(dir, 'src');
-const package = require(`${dir}/package.json`);
+const cwd = process.cwd();
+const src = path.resolve(cwd, 'src');
+const package = require(`${cwd}/package.json`);
 const command = process.argv[2];
 
 if (!['build', 'watch'].includes(command)) {
@@ -32,10 +32,11 @@ const logger = (options = {}) => ({
       if (result.warnings.length || result.errors.length) return console.log('\007');
 
       const css = `${path}/${slug}.css`;
-      console.log(`${css} ${Math.round(fs.statSync(css).size / 1000)} KB`);
-
       const js = `${path}/${slug}.js`;
+
+      console.log(`${css} ${Math.round(fs.statSync(css).size / 1000)} KB`);
       console.log(`${js} ${Math.round(fs.statSync(js).size / 1000)} KB`);
+      console.log()
     });
   }
 });
@@ -106,6 +107,19 @@ async function main() {
     builder.watch();
     watcher.watch();
   });
+}
+
+function extend(options, config) {
+  if (!config) return options;
+  return typeof config === 'function' ? config(options) : Object.assign(options, config);
+}
+
+if (fs.existsSync(process.argv[3])) {
+  const test = require(`${cwd}/${process.argv[3]}`);
+  console.log(extend(watchOptions, test.watch));
+  console.log(extend(buildOptions, test.build));
+  console.log(extend(serveOptions, test.serve));
+  process.exit();
 }
 
 main();
