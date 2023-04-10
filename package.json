@@ -1,6 +1,6 @@
 {
   "name": "@tmbr/bundler",
-  "version": "1.9.0",
+  "version": "1.9.1",
   "repository": "github:TMBR/tmbr-bundler",
   "bin": {
     "bundler": "cli.js",
