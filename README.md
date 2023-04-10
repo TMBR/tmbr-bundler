@@ -4,7 +4,7 @@ A configurable JavaScript and CSS bundler built on [esbuild](https://esbuild.git
 
 **Why [esbuild](https://esbuild.github.io)?**
 
-Compared to the mess of webpack loaders and dependencies, esbuild is significantly faster, has better documentation and zero dependencies by default. It was created by Evan Wallace, who built this amazing [WebGL demo](https://madebyevan.com/webgl-water) ... and co-founded [Figma](https://www.figma.com/).
+Compared to the mess of webpack loaders and dependencies, esbuild is faster, has better documentation and zero dependencies by default. It was created by Evan Wallace, who built this amazing [WebGL demo](https://madebyevan.com/webgl-water) ... and yeah, and co-founded [Figma](https://www.figma.com/)!
 
 ## Installation 
 
