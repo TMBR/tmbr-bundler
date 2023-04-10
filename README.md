@@ -13,3 +13,12 @@ npm install @tmbr/bundler --save-dev
 ```
 
 ## Usage
+```
+tmbr-bundler build
+tmbr-bundler watch
+```
+
+
+## Configuration
+
+More information coming soon.
