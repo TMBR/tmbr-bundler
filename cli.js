@@ -2,6 +2,7 @@
 const esbuild = require('esbuild');
 const fs = require('fs');
 const path = require('path');
+const exec = require('child_process').execSync;
 const chalk = require('chalk');
 const server = require('browser-sync').create();
 const styles = require('esbuild-sass-plugin').sassPlugin;
@@ -34,8 +35,8 @@ const logger = (options = {}) => ({
       const css = `${path}/${slug}.css`;
       const js = `${path}/${slug}.js`;
 
-      console.log(`${css} ${Math.round(fs.statSync(css).size / 1000)} KB`);
-      console.log(`${js} ${Math.round(fs.statSync(js).size / 1000)} KB`);
+      console.log(`  ${chalk.green('✓')} ${css} ${Math.round(fs.statSync(css).size / 1000)} KB`);
+      console.log(`  ${chalk.green('✓')} ${js} ${Math.round(fs.statSync(js).size / 1000)} KB`);
       console.log()
     });
   }
@@ -81,15 +82,33 @@ const serveOptions = {
 };
 
 server.info = function() {
-  const host = server.getOption('proxy').get('target');
-  const port = server.getOption('port');
-  const proxying = `${host}:${port}`;
-  const external = server.getOption('urls').get('external');
+  const proxying = this.url();
+  const external = this.getOption('urls').get('external');
 
   console.clear();
   console.log();
-  console.log(`Proxying: ${chalk.green(proxying)}`);
-  console.log(`External: ${chalk.cyan(external || 'offline')}\n`);
+  console.log(`  ➜ ${chalk.bold('Proxying')}: ${chalk.green(proxying)}`);
+  console.log(`  ➜ ${chalk.bold('External')}: ${chalk.cyan(external || 'offline')}\n`);
+  console.log(`  ${chalk.bold('Shortcuts')}`);
+
+  for (const [key, [_, tip]] of Object.entries(shortcuts)) {
+    tip && console.log(chalk.grey(`  press ${chalk.white.bold(key)} to ${tip}`));
+  }
+
+  console.log();
+};
+
+server.url = function() {
+  const host = this.getOption('proxy').get('target');
+  const port = this.getOption('port');
+  return `${host}:${port}`;
+};
+
+const shortcuts = {
+  o: [() => exec(`open ${server.url()}`), 'open in browser'],
+  r: [() => server.reload(), 'reload the page'],
+  q: [() => process.exit(), 'quit'],
+  '\x03': [() => process.exit()],
 };
 
 async function main() {
@@ -106,6 +125,14 @@ async function main() {
   server.init(serveOptions, () => {
     builder.watch();
     watcher.watch();
+
+    require('readline').emitKeypressEvents(process.stdin);
+
+    process.stdin.setRawMode(true);
+    process.stdin.on('keypress', (_, key) => {
+      if (!key) return;
+      shortcuts[key.sequence]?.[0]();
+    });
   });
 }
 
