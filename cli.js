@@ -1,16 +1,18 @@
 #!/usr/bin/env node
-const esbuild = require('esbuild');
-const fs = require('fs');
-const path = require('path');
-const exec = require('child_process').execSync;
-const chalk = require('chalk');
-const server = require('browser-sync').create();
-const styles = require('esbuild-sass-plugin').sassPlugin;
-const silent = require('sass').Logger.silent;
+import esbuild from 'esbuild';
+import fs from 'fs';
+import path from 'path';
+import chalk from 'chalk';
+import readline from 'readline';
+import { create } from 'browser-sync';
+import { execSync as exec } from 'child_process';
+import { sassPlugin as styles } from 'esbuild-sass-plugin';
+import * as sass from 'sass';
+
+const server = create();
 
 const cwd = process.cwd();
 const src = path.resolve(cwd, 'src');
-const package = require(`${cwd}/package.json`);
 const command = process.argv[2];
 
 if (!['build', 'watch'].includes(command)) {
@@ -30,7 +32,7 @@ const logger = (options = {}) => ({
     });
 
     context.onEnd(result => {
-      if (result.warnings.length || result.errors.length) return console.log('\007');
+      if (result.warnings.length || result.errors.length) return console.log('\\007');
 
       const css = `${path}/${slug}.css`;
       const js = `${path}/${slug}.js`;
@@ -55,7 +57,7 @@ const buildOptions = {
   treeShaking: true,
   legalComments: 'none',
   plugins: [
-    styles({sourceMap: false, logger: silent}),
+    styles({sourceMap: false, logger: sass.Logger.silent}),
     logger()
   ]
 };
@@ -71,7 +73,7 @@ const watchOptions = Object.assign({}, buildOptions, {
 });
 
 const serveOptions = {
-  proxy: `${package.name}.test`,
+  proxy: `${process.env.npm_package_name}.test`,
   files: ['assets/**', 'build/*', '**/*.php'],
   host: 'localhost',
   open: false,
@@ -125,8 +127,7 @@ async function main() {
   server.init(serveOptions, () => {
     builder.watch();
     watcher.watch();
-
-    require('readline').emitKeypressEvents(process.stdin);
+    readline.emitKeypressEvents(process.stdin);
 
     process.stdin.setRawMode(true);
     process.stdin.on('keypress', (_, key) => {
@@ -142,11 +143,11 @@ function extend(options, config) {
 }
 
 if (fs.existsSync(process.argv[3])) {
-  const test = require(`${cwd}/${process.argv[3]}`);
-  console.log(extend(watchOptions, test.watch));
-  console.log(extend(buildOptions, test.build));
-  console.log(extend(serveOptions, test.serve));
-  process.exit();
+  // const test = require(`${cwd}/${process.argv[3]}`);
+  // console.log(extend(watchOptions, test.watch));
+  // console.log(extend(buildOptions, test.build));
+  // console.log(extend(serveOptions, test.serve));
+  // process.exit();
 }
 
 main();
