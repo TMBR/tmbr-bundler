@@ -9,10 +9,9 @@ import { execSync as exec } from 'child_process';
 import { sassPlugin as styles } from 'esbuild-sass-plugin';
 import * as sass from 'sass';
 
-const server = create();
-
 const cwd = process.cwd();
 const src = path.resolve(cwd, 'src');
+const server = create();
 const command = process.argv[2];
 
 if (!['build', 'watch'].includes(command)) {
@@ -32,14 +31,18 @@ const logger = (options = {}) => ({
     });
 
     context.onEnd(result => {
-      if (result.warnings.length || result.errors.length) return console.log('\\007');
+
+      if (result.warnings.length || result.errors.length) {
+        console.log('\x07');
+        return
+      }
 
       const css = `${path}/${slug}.css`;
       const js = `${path}/${slug}.js`;
 
       console.log(`  ${chalk.green('✓')} ${css} ${Math.round(fs.statSync(css).size / 1000)} KB`);
       console.log(`  ${chalk.green('✓')} ${js} ${Math.round(fs.statSync(js).size / 1000)} KB`);
-      console.log()
+      console.log();
     });
   }
 });
@@ -137,17 +140,18 @@ async function main() {
   });
 }
 
-function extend(options, config) {
-  if (!config) return options;
-  return typeof config === 'function' ? config(options) : Object.assign(options, config);
-}
-
 if (fs.existsSync(process.argv[3])) {
-  // const test = require(`${cwd}/${process.argv[3]}`);
-  // console.log(extend(watchOptions, test.watch));
-  // console.log(extend(buildOptions, test.build));
-  // console.log(extend(serveOptions, test.serve));
-  // process.exit();
-}
 
-main();
+  function extend(options, config) {
+    if (typeof config === 'undefined') return;
+    Object.assign(options, typeof config === 'function' ? config(options) : config);
+  }
+
+  import(`${cwd}/${process.argv[3]}`).then(settings => {
+    extend(watchOptions, settings.watch);
+    extend(buildOptions, settings.build);
+    extend(serveOptions, settings.serve);
+    main();
+  });
+
+} else { main(); }
