@@ -77,7 +77,7 @@ const watchOptions = Object.assign({}, buildOptions, {
 
 const serveOptions = {
   proxy: `${process.env.npm_package_name}.test`,
-  files: ['assets/**', 'build/*', '**/*.php'],
+  files: ['assets/**', 'build/*', '**/*.php', '**/*.html'],
   host: 'localhost',
   open: false,
   notify: false,
