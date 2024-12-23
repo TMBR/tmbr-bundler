@@ -34,7 +34,7 @@ const logger = (options = {}) => ({
 
       if (result.warnings.length || result.errors.length) {
         console.log('\x07');
-        return
+        return;
       }
 
       const css = `${path}/${slug}.css`;
@@ -59,6 +59,11 @@ const buildOptions = {
   sourcemap: false,
   treeShaking: true,
   legalComments: 'none',
+  loader: {
+    '.glsl': 'text',
+    '.vert': 'text',
+    '.frag': 'text',
+  },
   plugins: [
     styles({sourceMap: false, logger: sass.Logger.silent}),
     logger()
