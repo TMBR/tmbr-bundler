@@ -65,7 +65,7 @@ const buildOptions = {
     '.frag': 'text',
   },
   plugins: [
-    styles({sourceMap: false, logger: sass.Logger.silent}),
+    styles({sourceMap: false}),
     logger()
   ]
 };
@@ -76,7 +76,7 @@ const watchOptions = Object.assign({}, buildOptions, {
   logLevel: 'silent',
   sourcemap: 'inline',
   plugins: [
-    styles({sourceMap: true})
+    styles({sourceMap: true, logger: sass.Logger.silent})
   ]
 });
 
